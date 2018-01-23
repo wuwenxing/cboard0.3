@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="org.cboard.dao.RoleDao">
+
+    <update id="save">
+        <![CDATA[
+        INSERT INTO dashboard_role(role_id,role_name,user_id,role_type,company_id) VALUES (#{roleId},#{roleName},#{userId},#{roleType},#{companyId})
+        ]]>
+    </update>
+
+    <select id="getRole" resultType="org.cboard.pojo.DashboardRole">
+        SELECT role_id roleId,role_name roleName,user_id userId,role_type roleType,company_id companyId FROM dashboard_role where role_id = #{0}
+    </select>
+
+    <select id="getRoleList" resultType="org.cboard.pojo.DashboardRole">
+        SELECT role_id roleId,role_name roleName,user_id userId,role_type roleType,company_id companyId FROM dashboard_role 
+        where company_id = #{1}
+<!--         AND (#{0} = '${admin_user_id}' or user_id = #{0}) -->
+        order by role_name
+    </select>
+
+    <select id="getRoleListAll" resultType="org.cboard.pojo.DashboardRole">
+        SELECT role_id roleId,role_name roleName,user_id userId,role_type roleType,company_id companyId FROM dashboard_role
+        where company_id = #{0}
+        order by role_name
+    </select>
+
+    <update id="update" parameterType="org.cboard.pojo.DashboardUser">
+        <![CDATA[
+        update dashboard_role set role_name = #{roleName},user_id = #{userId},role_type = #{roleType},company_id = #{companyId} where role_id = #{roleId}
+        ]]>
+    </update>
+
+    <select id="getRoleResList" resultType="org.cboard.pojo.DashboardRoleRes">
+        SELECT role_res_id roleResId,role_id roleId,res_id resId,res_type resType,permission permission,company_id companyId 
+        FROM dashboard_role_res
+        where company_id = #{0}
+    </select>
+
+    <insert id="saveRoleRes" parameterType="java.util.List">
+        insert into dashboard_role_res
+        (res_id, role_id,res_type,permission,company_id)
+        values
+        <foreach collection="list" item="rr" index="index" separator=",">
+            (#{rr.resId}, #{rr.roleId} ,#{rr.resType},#{rr.permission},#{rr.companyId})
+        </foreach>
+    </insert>
+
+    <delete id="deleteRoleRes">
+        delete from dashboard_role_res where role_id = #{0}
+    </delete>
+
+    <delete id="deleteRoleResByResId">
+        delete from dashboard_role_res where res_id = #{0} and res_type = #{1}
+    </delete>
+
+    <delete id="deleteRole">
+        delete from dashboard_role where role_id = #{0}
+    </delete>
+
+    <select id="getUserRoleResList" resultType="org.cboard.pojo.DashboardRoleRes">
+        select rr.role_res_id roleResId,rr.role_id roleId,rr.res_id resId,rr.res_type resType,rr.permission permission,rr.company_id companyId 
+        FROM dashboard_user_role ur 
+        LEFT JOIN dashboard_role_res rr ON ur.role_id = rr.role_id 
+        WHERE ur.user_id = #{0} AND ur.company_id = #{2} AND rr.res_type = #{1}
+    </select>
+
+</mapper>
